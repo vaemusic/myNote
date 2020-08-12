@@ -1,0 +1,19 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/mine/mine",
+    "pages/add-Note/add-Note",
+    "pages/note_detail/note_detail",
+    "pages/admin-user/admin-user",
+    "pages/admin-note/admin-note"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "uni-app",
+    "navigationBarBackgroundColor": "#0084FF",
+    "backgroundColor": "#0084FF"
+  },
+  "usingComponents": {},
+  "sitemapLocation": "sitemap41.json"
+}

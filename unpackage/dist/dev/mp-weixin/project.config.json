@@ -1,0 +1,56 @@
+{
+  "description": "项目配置文件。",
+  "packOptions": {
+    "ignore": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "checkSiteMap": false
+  },
+  "compileType": "miniprogram",
+  "libVersion": "",
+  "appid": "wx671ee2fb0342b1b2",
+  "projectname": "myNote",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "simulatorType": "wechat",
+  "simulatorPluginLibVersion": {},
+  "condition": {
+    "search": {
+      "current": -1,
+      "list": []
+    },
+    "conversation": {
+      "current": -1,
+      "list": []
+    },
+    "game": {
+      "current": -1,
+      "list": []
+    },
+    "miniprogram": {
+      "current": 0,
+      "list": [
+        {
+          "name": "添加笔记",
+          "id": 0,
+          "pathName": "pages/add-Note/add-Note"
+        },
+        {
+          "name": "后台管理首页",
+          "id": 1,
+          "pathName": "pages/admin-user/admin-user"
+        },
+        {
+          "name": "后台管理-笔记",
+          "id": 2,
+          "pathName": "pages/admin-note/admin-note"
+        },
+        {
+          "name": "我的",
+          "id": 3,
+          "pathName": "pages/mine/mine"
+        }
+      ]
+    }
+  }
+}
