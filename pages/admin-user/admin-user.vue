@@ -1,35 +1,35 @@
 <template>
 	<view>
-		<button @click="handleClick" class="btn">导航</button>
-		<uni-drawer ref="drawer" :visible="true">
-		    <view style="padding:30rpx;">
-		        <view v-for="(item,index) in left_menu" 
-				class="uni-title active" 
-				:key="index" 
-				@click="menuClickHandle(index)">{{item}}</view>
-		    </view>
-		</uni-drawer>
+		<!-- 标题 -->
 		<view class="user_admin">
 			<view class="title">
 				用户管理
 			</view>
 		</view>
+		<!-- 用户信息 采用表格形式 -->
 		<view class="userinfo">
 			<t-table border="1" border-color="#95b99e" @change="change">
+				<!-- 表头 -->
 				<t-tr font-size="18" color="#95b99e" align="left" style="width:780rpx;">
 					<t-th align="center">用户名</t-th>
 					<t-th align="center">用户权限</t-th>
 					<t-th align="center">操作</t-th>
 				</t-tr>
-				<t-tr font-size="18" color="#5d6f61" align="right" v-for="item in tableList" :key="item.id">
+				<!-- 表体 -->
+				<t-tr font-size="18" color="#5d6f61" align="right" v-for="(item,index) in tableList" :key="item.id">
 					<t-td align="center" style="width: 625rpx;">{{ item.nickName }}</t-td>
 					<t-td align='center' style="width:100rpx;">
-						<picker @change="bindPickerChange(item.id,$event)" :value="item.index" :range="array">
-							<view>{{array[item.index]}}</view>
+						<!-- @change:绑定修改用户级别事件，需要传递当前用户索引和默认事件 -->
+						<!-- :value:用户的级别，取值范围为0 1 2，分别代表员工、领导和管理员 -->
+						<!-- :range:下拉选择列表，显示的文字为下边data中array数组定义的内容 -->
+						<picker @change="bindPickerChange(index,$event)" :value="item.level" :range="array">
+							<!-- 根据当前用户级别，显示不同级别名称 -->
+							<view>{{array[item.level]}}</view>
 						</picker>
 					</t-td>
 					<t-td style="width:50rpx;">
-						<button @click="edit(item)">删除</button>
+						<!-- 删除 暂未开发 -->
+						<button disabled="true">删除</button>
 					</t-td>
 				</t-tr>
 			</t-table>
@@ -38,65 +38,55 @@
 </template>
 
 <script>
-	import uniDrawer from "@/components/uni-drawer/uni-drawer.vue"
 	import tTable from '@/components/t-table/t-table.vue';
 	import tTh from '@/components/t-table/t-th.vue';
 	import tTr from '@/components/t-table/t-tr.vue';
 	import tTd from '@/components/t-table/t-td.vue';
-	
 	export default {
 		data() {
 			return {
-				left_menu:['用户管理','笔记管理'],
-				tableList:[
-					{
-						id:0,
-						nickName:"飘~",
-						index:0
-					},
-					{
-						id:1,
-						nickName:"大卓~",
-						index:0
-					},
-					{
-						id:2,
-						nickName:"张三",
-						index:0
-					},
-					{
-						id:3,
-						nickName:"李四",
-						index:0
-					},
-					{
-						id:4,
-						nickName:"王五",
-						index:0
-					}
-				],
-				array: ['员工', '主管', '董事长'],
-				index: 0
+				//员工信息
+				tableList:[],
+				//下拉列表的文字
+				array: ['员工', '领导', '管理员']
 			}
 		},
+		onLoad() {
+			//页面初始化时获取所有用户信息
+			this.getAllUser()
+		},
 		methods: {
-			handleClick(){
-			    this.$refs.drawer.open();
+			//修改员工权限
+			bindPickerChange: function(index,event) {
+				const level = event.target.value
+				const openid=this.tableList[index].openid
+				uni.showLoading({
+					title:'权限更改中……',
+					mask:true
+				})
+				wx.cloud.callFunction({
+					name:'updateEmpLevel',
+					data:{
+						'level':level,
+						'openid':openid
+					}
+				}).then(res=>{
+					//修改成功之后重新获取一遍所有用户，以更新当前用户级别
+					this.getAllUser()
+					uni.hideLoading()
+				})
 			},
-			menuClickHandle(index){
-				if(index==1){
-					uni.navigateTo({
-						url:"/pages/admin-note/admin-note"
-					})
-				}
-			},
-			bindPickerChange: function(id,event) {
-				console.log('picker发送选择改变，携带值为', id,event)
-				this.tableList[id].index = event.target.value
+			//获取所有员工
+			getAllUser(){
+				wx.cloud.callFunction({
+					name:'getAllUser'
+				}).then(res=>{
+					this.tableList=res.result.data
+					console.log(this.tableList)
+				})
 			}
 		},
 		components: {
-			uniDrawer,
 			tTable,
 			tTh,
 			tTr,

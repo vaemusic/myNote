@@ -1,18 +1,16 @@
 <template>
 	<view class="content">
-		<!--<view class="add_note" @click="addNote">
-			<image src="../../static/add.png"></image>
-			<text>添加笔记</text>
-		</view>-->
+		<!-- 笔记内容主体 -->
 		<view class="note">
-			<view @click="goDetail(item._id)" class="note_item" v-for="item in noteData" :key="item._id" @longpress="longpress(item._id)" hover-class="note_item_hover">
+			<view @click="goDetail(item._id)" class="note_item" v-for="item in noteData" :key="item._id" hover-class="note_item_hover">
 				<view class="title">{{item.title}}</view>
 				<view class="note_text">{{item.note}}</view>
 				<view class="time">添加时间：{{item.time}}</view>
 			</view>
 		</view>
+		<!-- 底部栏 -->
 		<view class="cu-bar tabbar bg-blue">
-			<view class="action text-white" style="padding-top: 10rpx;">
+			<view class="action text-white" style="padding-top: 10rpx;" @click="Refresh">
 				<view class="cuIcon-homefill"></view> 首页
 			</view>
 			<view class="action text-white add-action">
@@ -30,35 +28,43 @@
 
 <script>
 	import { timestampToTime } from "../../js_sdk/tool.js";
-	const db = wx.cloud.database()
 	export default {
 		data() {
 			return {
-				noteData:[]
+				//笔记数据
+				noteData:[],
+				//当前用户笔记总数
+				total:0
 			}
 		},
-		onLoad() {
-			// 监听日记列表的删除操作
-			/*db.collection('noteList').watch({
-				onChange:res=>{
-					this.noteData=[]
-					this.getNotes()
-				},
-				onError:err=>{
-					console.log(err)
-				}
-			})*/
-			
-			var date=new Date('2020-05-15').getTime()
-			console.log(date)
-		},
-		onShow(){
+		onReady() {
 			this.getNotes()
+			this.getNoteTotal()
 		},
 		onPullDownRefresh() {
+			//下拉刷新 初始化笔记数组，获取笔记总数，用于判断有无更多数据
 			this.noteData=[]
 			this.getNotes()
+			this.getNoteTotal()
 			uni.stopPullDownRefresh()
+		},
+		//触底加载更多数据
+		onReachBottom() {
+			var page=this.noteData.length
+			uni.showLoading({
+				title:'数据加载中',
+				mask:true
+			})
+			//判断当前笔记列表和当前用户笔记总数
+			if(page!=this.total){
+				this.getNotes(10,page)
+				uni.hideLoading()
+			}else{
+				uni.hideLoading()
+				uni.showToast({
+					title:'没有更多数据了'
+				})
+			}
 		},
 		methods: {
 			// 跳转到添加笔记页面
@@ -67,51 +73,20 @@
 					url:"../add-Note/add-Note"
 				})
 			},
-			// 长按删除
-			longpress(_id){
-				const itemList = ['删除']
-				uni.showActionSheet({
-					itemList,
-					success: (res) => {
-						if(res.tapIndex==0){
-							uni.showModal({
-								title:'删除提醒',
-								content:'您确定要删除这篇笔记吗?',
-								success: (res) => {
-									if(res.confirm){
-										wx.cloud.callFunction({
-											name:"delNote",
-											data:{
-												"id":_id
-											}
-										})
-										.then(res=>{
-											if(res.result.stats.removed){
-												uni.showToast({
-													title:'删除成功！'
-												})
-												this.noteData=[]
-												this.getNotes()
-											}else{
-												uni.showToast({
-													title:'删除失败！'
-												})
-											}
-										})
-									}
-								}
-							})
-						}
+			// 获取笔记数据，num：每次加载数据条数，page：下一页数据从多少条开始加载
+			getNotes(num=10,page=0){
+				wx.cloud.callFunction({
+					name:'getNoteList',
+					data:{
+						num:num,
+						page:page
 					}
 				})
-			},
-			// 获取笔记数据
-			getNotes(){
-				wx.cloud.callFunction({
-					name:'getNoteList'
-				})
 				.then(res=>{
-					this.noteData = res.result.data.map(v=>({
+					var oldData=this.noteData
+					var newData=oldData.concat(res.result.data);
+					//数据库内添加时间存的是时间戳，方便根据时间排序笔记，在此需要把时间戳转换为正常日期
+					this.noteData = newData.map(v=>({
 						...v,time:timestampToTime(v.time)
 					}))
 				})
@@ -122,10 +97,23 @@
 					url:"../note_detail/note_detail?id="+_id
 				})
 			},
+			//跳转到我的页面
 			goMine(){
 				uni.redirectTo({
 					url:"../mine/mine"
 				})
+			},
+			//获取当前用户笔记总数
+			getNoteTotal(){
+				wx.cloud.callFunction({
+					name:'getNoteTotal'
+				}).then(res=>{
+					this.total=res.result.total
+				})
+			},
+			//点击当前底部栏刷新页面
+			Refresh(){
+				uni.startPullDownRefresh()
 			}
 		}
 	}
@@ -139,26 +127,6 @@
 		.add-action{
 			height: 200rpx;
 		}
-		/*.add_note{
-			display: flex;
-			background-color: #FFFFFF;
-			width: 750rpx;
-			height: 180rpx;
-			border-bottom: 1px solid $myNote-color;
-			image{ 
-				width: 100rpx;
-				height: 100rpx;
-				align-self: center;
-				position: absolute;
-				margin-left: 200rpx;
-			}
-			text{
-				margin-left: 320rpx;
-				align-self: center;
-				
-				font-size: 60rpx;
-			}
-		}*/
 		.note_item{
 			font-family: 'simsun';
 			.title{

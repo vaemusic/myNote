@@ -8,8 +8,9 @@ const _ = db.command
 // 云函数入口函数
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext()
-
-  return await db.collection("noteList").orderBy('time','desc').where({
+  var num=event.num
+  var page=event.page
+  return await db.collection("noteList").skip(page).limit(num).orderBy('time','desc').where({
 	  _openid:wxContext.OPENID
   }).get()
 } 

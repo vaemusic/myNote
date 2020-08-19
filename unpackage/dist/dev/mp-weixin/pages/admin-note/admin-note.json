@@ -1,7 +1,6 @@
 {
-  "navigationBarTitleText": "笔记管理",
+  "navigationBarTitleText": "员工笔记",
   "usingComponents": {
-    "uni-drawer": "/components/uni-drawer/uni-drawer",
     "t-table": "/components/t-table/t-table",
     "t-th": "/components/t-table/t-th",
     "t-tr": "/components/t-table/t-tr",

@@ -1,6 +1,6 @@
 <template>
 	<view>
-		<button class="user_btn" @click="login" v-if="!userInfo.nickName" open-type="getUserInfo">登录</button>
+		<!-- 用户头像和微信昵称 -->
 		<view class="user_info_wrap" v-if="userInfo.nickName">
 			<view class="user_img_wrap">
 				<view class="userinfo">
@@ -9,10 +9,14 @@
 				</view>
 			</view>
 		</view>
-		<view v-if="userInfo.nickName" class="admin" @click="goAdmin">
+		<!-- 判断用户级别，是管理员显示管理页面，是领导显示查看员工笔记 -->
+		<view v-if="userLevel==2" class="admin" @click="goAdmin">
 			管理页面
 		</view>
-		
+		<view v-if="userLevel==1" class="admin" @click="goNote">
+			查看员工笔记
+		</view>
+		<!-- 底部栏 -->
 		<view class="cu-bar tabbar bg-blue">
 			<view class="action text-gray" style="padding-top: 10rpx;" @click="goIndex">
 				<view class="cuIcon-homefill"></view> 首页
@@ -21,12 +25,11 @@
 				<button class="cu-btn cuIcon-add bg-white shadow" @click="addNote"></button>
 				添加
 			</view>
-			<view class="action text-white" style="padding-top: 10rpx;">
+			<view class="action text-white" style="padding-top: 10rpx;" @click="Refresh">
 				<view class="cuIcon-my"></view>
 				我的
 			</view>
 		</view>
-		
 	</view>
 </template>
 
@@ -34,8 +37,27 @@
 	export default {
 		data() {
 			return {
-				userInfo:{}
+				//用户信息
+				userInfo:{},
+				//用户级别
+				userLevel:''
 			}
+		},
+		onLoad() {
+			//页面加载时加载用户信息和用户级别
+			this.userInfo = uni.getStorageSync('userInfo');
+			this.userLevel=uni.getStorageSync('level')
+		},
+		onPullDownRefresh() {
+			//下拉刷新，重新获取用户级别
+			//原因：用户级别是应用加载时存放在内存中，当管理员修改了用户级别时，内存里的用户等级不会实时更新，需要下拉刷新重新获取
+			wx.cloud.callFunction({
+				name:'getEmpLevel'
+			}).then(res=>{
+				uni.setStorageSync('level',res.result.data[0].level)
+				this.userLevel=res.result.data[0].level
+				uni.stopPullDownRefresh()
+			})
 		},
 		methods: {
 			// 跳转到添加笔记页面
@@ -44,24 +66,27 @@
 					url:"../add-Note/add-Note"
 				})
 			},
-			// 点击登录按钮获取用户信息
-			login(){
-				uni.getUserInfo({
-					success: (res) => {
-						this.userInfo=res.userInfo
-						console.log(res)
-					}
-				})
-			},
+			// 跳转到用户管理页面
 			goAdmin(){
 				uni.navigateTo({
 					url:"/pages/admin-user/admin-user"
 				})
 			},
+			// 跳转到查看员工笔记页面
+			goNote(){
+				uni.navigateTo({
+					url:"/pages/admin-note/admin-note"
+				})
+			},
+			//跳转到首页
 			goIndex(){
 				uni.redirectTo({
 					url:"../index/index"
 				})
+			},
+			//点击当前底部栏刷新页面
+			Refresh(){
+				uni.startPullDownRefresh()
 			}
 		}
 	}

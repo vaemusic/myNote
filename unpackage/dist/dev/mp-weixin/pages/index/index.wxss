@@ -24,28 +24,6 @@
 /* 垂直间距 */
 /* 透明度 */
 /* 文章场景相关 */
-.content {
-  /*.add_note{
-		display: flex;
-		background-color: #FFFFFF;
-		width: 750rpx;
-		height: 180rpx;
-		border-bottom: 1px solid $myNote-color;
-		image{ 
-			width: 100rpx;
-			height: 100rpx;
-			align-self: center;
-			position: absolute;
-			margin-left: 200rpx;
-		}
-		text{
-			margin-left: 320rpx;
-			align-self: center;
-			
-			font-size: 60rpx;
-		}
-	}*/
-}
 .content .note {
   margin-bottom: 104rpx;
 }

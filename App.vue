@@ -11,6 +11,27 @@
 					traceUser: true,
 					})
 			console.log('初始化')
+			
+			var userInfo = uni.getStorageSync('userInfo')
+			if(!userInfo){
+				uni.getUserInfo({
+					success: (res) => {
+						//this.userInfo=res.userInfo
+						wx.cloud.callFunction({
+							name:'addEmp',
+							data:{
+								'userinfo':res.userInfo
+							}
+						}).then(res=>{
+							//console.log(res,this.userInfo)
+						})
+						uni.setStorageSync('userInfo',res.userInfo)
+					}
+				})
+			}
+		},
+		onLoad() {
+			this.getUserLevel()
 		},
 		onShow: function() {
 			console.log('App Show')
@@ -19,10 +40,12 @@
 			console.log('App Hide')
 		},
 		methods: {
-			// 跳转到添加笔记页面
-			addNote(){
-				uni.navigateTo({
-					url:"../add-Note/add-Note"
+			// 获取当前用户等级
+			getUserLevel(){
+				wx.cloud.callFunction({
+					name:'getEmpLevel'
+				}).then(res=>{
+					uni.setStorageSync('level',res.result.data[0].level) 
 				})
 			}
 		},

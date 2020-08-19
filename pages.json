@@ -11,6 +11,7 @@
 	    ,{
             "path" : "pages/mine/mine",
             "style" : {
+				"enablePullDownRefresh":true,
 				"navigationBarTitleText":"我的"
 			}
         }
@@ -35,7 +36,13 @@
         ,{
             "path" : "pages/admin-note/admin-note",
             "style" : {
-				"navigationBarTitleText":"笔记管理"
+				"navigationBarTitleText":"员工笔记"
+			}
+        }
+        ,{
+            "path" : "pages/note_list/note_list",
+            "style" : {
+				"navigationBarTitleText":"笔记列表"
 			}
         }
     ],

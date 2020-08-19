@@ -1,9 +1,12 @@
 <template>
 	<view>
+		<!-- 标题输入框 -->
 		<view class="title">
 			<input type="text" @input="inputTitle" placeholder="请输入标题,最多输入10个字" maxlength="10" auto-focus="true"/>
 		</view>
+		<!-- 分割线 -->
 		<view class="line"></view>
+		<!-- 内容输入框 maxlength='-1'代表没有上限 -->
 		<textarea @input="inputNote" type="text" placeholder="点击此处输入您要记录的内容..." auto-height="true" maxlength="-1"/>
 		<button class="save_btn" hover-class="save_btn_hover" @click="addNote">保存</button>
 		
